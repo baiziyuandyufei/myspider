@@ -4,4 +4,4 @@ MediaCrawler
 **/nodejs/puppeteer_bc/puppeteer笔记_files
 **/node_modules
 .vscode
-
+**/__pycache__
