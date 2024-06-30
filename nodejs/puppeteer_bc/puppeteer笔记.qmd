@@ -1,0 +1,49 @@
+---
+title: "读书笔记:《Node.js Beginner's Classic》"
+author: "bzy"
+format: html
+jupyter: python3
+toc: true
+---
+
+# 一个简单示例
+
+
+js基础补充
+
+```{text}
+JavaScript中let、var和const定义变量的主要区别如下:
+
+1. 作用域:
+- var声明的变量是函数作用域或全局作用域[1][2]
+- let和const声明的变量是块级作用域[1][2]
+
+2. 变量提升:
+- var声明的变量会被提升到作用域顶部,并初始化为undefined[1][2]
+- let和const声明的变量也会被提升,但不会被初始化,存在暂时性死区[1][2]
+
+3. 重复声明:
+- var允许在同一作用域内重复声明同名变量[1][2]
+- let和const不允许在同一块级作用域内重复声明同名变量[1][2]
+
+4. 修改值:
+- var和let声明的变量可以被重新赋值[1][2]
+- const声明的变量不能被重新赋值,但如果是对象,其属性可以被修改[1][2]
+
+5. 初始化要求:
+- var和let可以在声明时不进行初始化[1][2]
+- const必须在声明时进行初始化[1][2]
+
+6. 全局对象属性:
+- var在全局作用域声明的变量会成为全局对象的属性
+- let和const在全局作用域声明的变量不会成为全局对象的属性
+
+总的来说,let和const提供了更严格的作用域控制和不可变性,有助于减少错误并提高代码的可维护性。在实际开发中,建议优先使用const,其次是let,尽量避免使用var。
+
+Citations:
+[1] https://www.freecodecamp.org/chinese/news/var-let-and-const-whats-the-difference/
+[2] https://www.freecodecamp.org/chinese/news/javascript-var-let-and-const/
+[3] https://juejin.cn/post/6925641096152399880
+[4] https://cloud.tencent.com/developer/article/1940775
+[5] https://blog.csdn.net/weixin_57677300/article/details/126617174
+```

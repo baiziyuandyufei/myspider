@@ -1,0 +1,7 @@
+MediaCrawler
+**/*.db
+**/nodejs/nodejs_bc/nodejs笔记_files
+**/nodejs/puppeteer_bc/puppeteer笔记_files
+**/node_modules
+.vscode
+

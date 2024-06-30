@@ -1,0 +1,234 @@
+---
+title: "读书笔记:《Node.js Beginner's Classic》"
+author: "bzy"
+format: html
+jupyter: python3
+toc: true
+toc-expand: true
+---
+
+# 1. Node.js介绍
+
+## 1.1 什么是Node.js
+
+Google的工程师们创建了**V8**，这是个给Google Chrome浏览器编写的JavaScript引擎，它也是专门为Web而设计的经过高度优化的软件。
+
+Ryan Dahl决定使用V8引擎来创建JavaScript服务器端环境。**Node.js**是个事件驱动的服务器端JavaScript**环境**。
+
+## 1.2 Node.js能做什么
+
+Node.js是个程序设计平台，它既可以创建对文件系统进行操作的小段脚本，也可以创建大规模的Web应用程序来运行整个业务。
+
+## 1.3 什么是服务器端的JavaScript？
+
+使用JavaScript操纵浏览器中的Web页面并与之交互，这就是通常所称的客户端JavaScript，因为它发生在浏览器或者客户端。服务器端JavaScript发生在把页面发送给浏览器之前的**服务器上**。当然使用的是同样的语言。
+
+## 1.4 安装并创建第一个Node.js程序
+
+用于Windows和OSX的安装程序可以在Node.js的主页下载[https://nodejs.org/en](https://nodejs.org/en)
+
+验证Node.js是否安装成功
+
+```{javascript}
+% node
+Welcome to Node.js v20.14.0.
+Type ".help" for more information.
+> 1+1
+2
+```
+
+创建 “Hello World” Node.js程序
+
+```{javascript}
+var http = require('http');
+http.createServer(function (req, res){
+    res.writeHead(200, {'Content-Type': 'text/plain'});
+    res.end('Hello World\n');
+}).listen(3000, "127.0.0.1");
+console.log('Server running at http://127.0.0.1:3000/');
+```
+
+![第一个nodejs程序](./%E7%AC%AC%E4%B8%80%E4%B8%AAnodejs%E7%A8%8B%E5%BA%8F.png)
+
+## 1.5 小结
+
+- 创建了一个简单的服务器。
+- Node.js运行在V8引擎之上，V8是由Google开发的JavaScript引擎。
+- Node.js精于创建有上千个并发用户的联网应用程序。
+
+关于Node.js，并发的含义是什么？
+
+Node.js的并发主要体现在以下几个方面:
+
+1. 单线程异步模型：Node.js采用单线程事件循环模型，通过非阻塞I/O和事件驱动的方式实现并发[1][2]。这使得Node.js可以同时处理大量I/O操作而不会阻塞主线程。
+
+2. 事件驱动：Node.js使用事件循环来处理异步操作，允许同时执行多个任务而不需要创建多个线程[2]。
+
+3. 非阻塞I/O：Node.js的I/O操作是非阻塞的，这意味着在等待I/O完成时可以继续执行其他代码[1][2]。
+
+4. 多进程：通过Cluster模块，Node.js可以创建多个子进程来利用多核CPU，实现真正的并行处理[3][4]。
+
+5. 多线程：虽然Node.js主要是单线程的，但通过worker_threads模块可以创建多个线程来处理CPU密集型任务[1][2]。
+
+6. 异步并发：使用Promise.all等方法可以同时发起多个异步操作，实现并发效果[1]。
+
+7. 限制并发：通过使用工具如p-limit，可以控制并发数量，避免过度消耗资源[1]。
+
+Node.js的并发模型特别适合I/O密集型应用，如Web服务器、数据库查询等[2][5]。它允许应用程序在等待I/O操作完成时继续处理其他任务，从而提高整体性能和吞吐量。然而，对于CPU密集型任务，可能需要使用多进程或多线程来充分利用多核CPU的优势[3][4]。
+
+Citations:
+
+- [1] https://juejin.cn/post/6934566591133089806
+- [2] https://cloud.tencent.com/developer/article/1803406
+- [3] https://blog.csdn.net/yuanlong12178/article/details/136373806
+- [4] https://javascript-concurrency.gitbook.io/javascript-concurrency/09.-di-jiu-zhang-nodejs-gao-ji-bing-fa
+- [5] https://xie.infoq.cn/article/d0b008f3fb992abf278c8b3b8
+
+# 2 npm
+
+## 2.1 npm是什么
+
+npm（Node package Manager, Node包管理器）
+
+## 2.2 安装npm
+
+安装了Node.js，那么npm就已经安装好了。
+
+## 2.3 安装模块
+
+模块是可重用的代码库。
+
+```{bash}
+% npm install underscore
+
+added 1 package, and audited 134 packages in 5s
+
+14 packages are looking for funding
+  run `npm fund` for details
+
+3 high severity vulnerabilities
+
+To address all issues, run:
+  npm audit fix
+
+Run `npm audit` for details.
+```
+
+## 2.4 使用模块
+
+```{javascript}
+var _ = require('underscore');
+_.each([1,2,3], function(num){
+    console.log("underscore.js say " + num);
+});
+```
+
+```{bash}
+% node foo.js
+underscore.js say 1
+underscore.js say 2
+underscore.js say 3
+```
+
+## 2.5 如何查找模块
+
+```{bash}
+% npm search puppeteer
+puppeteer
+A high-level API to control headless Chrome over the DevTools Protocol
+Version 22.12.1 published 2024-06-26 by google-wombot
+Maintainers: mathias google-wombot
+Keywords: puppeteer chrome headless automation
+https://npm.im/puppeteer
+```
+
+## 2.6 本地和全局的安装
+
+本地安装意味着库将安装在项目本地的一个名为node_modules的文件夹下
+
+有些模块带有可执行文件，你希望能够在文件系统的任何一个位置都能运行这些可执行文件。Express就是一个可能需要全局安装的模块示例。Express是Node.js的一个Web开发框架，带有一个能够创建站点骨架的生成器。
+
+要全局安装模块，只需在安装时加上-g标记。
+
+## 2.7 如何找模块文档
+
+查看文档
+
+`% npm docs underscore`
+
+查看bug
+
+`% npm bugs underscore`
+
+## 2.8 使用package.json指定以来关系
+
+```{json}
+{
+    "name":"example02",
+    "version":"0.0.1",
+    "dependencies": {
+        "underscore":"~1.2.1"
+    }
+}
+```
+
+```{bash}
+% npm install
+
+added 1 package, and audited 2 packages in 1s
+
+found 0 vulnerabilities
+```
+
+```{bash}
+% npm list
+example02@0.0.1 /Users/feiyu/git_code/myspider/nodejs/nodejs_bc
+└── underscore@1.2.4
+```
+
+# 3. Node.js的作用
+
+## 3.1 设计Node.js的目的
+
+Node.js是创建在Chrome的JavaScript运行时之上的一个平台，用于简单构建快速的、可扩展的网络应用程序。**Node.js使用事件驱动的、非阻塞的I/O模型**，这让其既轻量又高效，是运行于不同发布设备上的数据密集型实时应用程序的完美平台。
+
+## 3.4 联网的I/O是不可预测的
+
+请求响应时间是不可预测的。
+
+```{JavaScript}
+var _ = require('underscore');
+_.each([1,2,3], function(num){
+    console.log("underscore.js say " + num);
+});
+```
+
+```{text}
+% node app.js 
+Got response from edition.cnn.com
+Request took:  530 ms
+Got response from shapeshed.com
+Request took:  548 ms
+Got response from www.bbc.co.uk
+Request took:  735 ms
+```
+
+```{text}
+% node app.js
+Got response from www.bbc.co.uk
+Request took:  501 ms
+Got response from edition.cnn.com
+Request took:  502 ms
+Got response from shapeshed.com
+Request took:  521 ms
+```
+
+运行app.js为什么进程不结束
+
+因为 http.get 是一个异步操作，并且 Node.js 的事件循环会保持运行直到所有的异步操作完成。**Node.js使用事件驱动的、非阻塞的I/O模型**。
+
+## 3.5 人类是不可预测的
+
+事件可在任何时刻发生，也可发生不止一次。我们将此描述为事件驱动的编程，因为在程序中要是有事情发生的话那么有个事件必须发生。事件驱动编程是处理不可预测性的极佳方式，因为我们可以识别将要发生的事件，即使我们并不知道事件什么时候会发生。
+
+Node的事件化的I/O模型让我们无需担心互锁和并发这两个在多线程异步I/O中常见的问题。
