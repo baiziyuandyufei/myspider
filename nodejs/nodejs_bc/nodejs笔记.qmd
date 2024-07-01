@@ -48,7 +48,6 @@ http.createServer(function (req, res){
 console.log('Server running at http://127.0.0.1:3000/');
 ```
 
-![第一个nodejs程序](./%E7%AC%AC%E4%B8%80%E4%B8%AAnodejs%E7%A8%8B%E5%BA%8F.png)
 
 ## 1.5 小结
 
@@ -232,3 +231,144 @@ Request took:  521 ms
 事件可在任何时刻发生，也可发生不止一次。我们将此描述为事件驱动的编程，因为在程序中要是有事情发生的话那么有个事件必须发生。事件驱动编程是处理不可预测性的极佳方式，因为我们可以识别将要发生的事件，即使我们并不知道事件什么时候会发生。
 
 Node的事件化的I/O模型让我们无需担心互锁和并发这两个在多线程异步I/O中常见的问题。
+
+# 4. 回调
+
+## 4.1 什么是回调
+
+回调指的是将一个函数作为参数传递给另一个函数，并且通常在第一个函数完成后被调用。
+
+## 4.2 剖析回调
+
+```{JavaScript}
+function haveBreakfast(food, drink, callback){
+    console.log('早餐食物：' + food + ', ' + drink);
+    if (callback && typeof(callback) === "function"){
+        callback();
+    }
+}
+
+haveBreakfast('面包', '咖啡', function(){
+    console.log('吃了饭，现在要工作了');
+});
+```
+
+```{text}
+% node app_callback.js 
+早餐食物：面包, 咖啡
+吃了饭，现在要工作了
+```
+
+回调的用途：haveBreakfast执行后，最后执行回调函数。
+
+## 4.3 如何使用回调
+
+```{javascript}
+var http = require('http');
+
+http.get({host: 'shapeshed.com'}, function(res){
+    console.log("获取 shapeshed.com 的响应");
+}).on('error', function(e){
+    console.log("获取 shapeshed.com 时有一个错误")
+});
+```
+```{text}
+% node app_use_callback.js 
+获取 shapeshed.com 的响应
+```
+为什么在终端执行node app_use_callback.js 后，进程一直没有结束？
+
+```{text}
+主要原因
+Node.js 维护了一个事件循环，只要还有未完成的异步操作或活跃的监听器，进程就不会退出。在您的代码中，HTTP 客户端创建了一个持久连接，这个连接会保持打开状态，等待可能的后续请求。
+详细解释
+持久连接：
+HTTP/1.1 默认使用持久连接（keep-alive）。这意味着 TCP 连接在完成初始请求后不会立即关闭，而是保持打开状态以便重用。
+事件循环：
+Node.js 的事件循环会继续运行，因为它检测到仍有活跃的网络连接。
+隐式计时器：
+HTTP 客户端可能设置了内部计时器来管理连接的生命周期，这些计时器也会保持事件循环活跃。
+缺少显式关闭：
+您的代码没有明确地关闭 HTTP 客户端或结束进程。
+```
+## 4.4 同步和异步代码
+
+同步和阻塞这两个术语可互换使用，指的是代码的执行会在函数返回之前停止。如果某个操作阻塞，那么脚步就无法继续。对于最终用户而言，这意味着他们必须得等待。
+
+Node.js中普通定义的函数，就是同步代码，一个函数接着一个函数执行。
+
+```{javascript}
+function sleep(millisceconds){
+    var start = new Date().getTime();
+    while((new Date().getTime() - start) < millisceconds);
+}
+
+function fetchPage(){
+    console.log('获取 页面');
+    sleep(2000);
+    console.log('从页面返回数据');
+}
+
+function fetchApi(){
+    console.log('获取 api');
+    sleep(2000);
+    console.log('从api返回数据')
+}
+
+fetchPage();
+fetchApi();
+```
+
+```{text}
+% node app_sync.js
+获取 页面
+从页面返回数据
+获取 api
+从api返回数据
+```
+
+异步和非阻塞这两个术语也可互换使用，指的是基于回调的、允许脚步并行执行操作的方法。脚步无需等待某个操作的结果才能继续进行，因为操作结果会在事件发生时由回调来处理。使用异步方法，操作无需一个接一个地发生。
+
+```{javascript}
+var http = require("http");
+
+function fetchPage(){
+    console.log('获取页面');
+    http.get({host:'trafficjamapp.herokuapp.com',path: '/?delay=2000'},
+        function(res){
+            console.log('从页面获取到数据');
+        }
+    ).on('error', 
+        function(e){
+            console.log("获取页面发生以下错误: " + e);
+        }
+    );
+}
+
+function fetchApi() {
+    console.log("获取api");
+    http.get({host:'trafficjamapp.herokuapp.com', path: '/?delay=2000'},
+        function (res){
+            console.log("从api获取到数据");
+        }
+    ).on('error',
+        function(err){
+            console.log("获取api时发生以下错误: " + e);
+    });
+}
+
+fetchPage();
+fetchApi();
+```
+
+```{text}
+% node app_async.js
+获取页面
+获取api
+从页面获取到数据
+从api获取到数据
+```
+
+## 4.5 事件循环
+
+Node.js使用JavaScript的事件循环来支持它的异步编程风格。基本上，事件循环使得系统可以将回调函数先保存起来，而后当事件在将来发生时再运行。

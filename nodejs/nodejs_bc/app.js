@@ -1,4 +1,5 @@
 var http = require("http");
+
 urls = ['shapeshed.com', 'www.bbc.co.uk','edition.cnn.com'];
 
 function fetchPage(url){
