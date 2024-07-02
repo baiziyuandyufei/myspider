@@ -113,7 +113,39 @@ Citations:
 [2] https://www.freecodecamp.org/chinese/news/javascript-var-let-and-const/
 [3] https://juejin.cn/post/6925641096152399880
 [4] https://cloud.tencent.com/developer/article/1940775
-[5] https://blog.csdn.net/weixin_57677300/article/details/126617174</code></pre>
+[5] https://blog.csdn.net/weixin_57677300/article/details/126617174
+</code></pre>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 19%">
+<col style="width: 19%">
+<col style="width: 60%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Node.js 标识符</th>
+<th>C/C++ 标识符</th>
+<th>相同点与不同点</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>var</code></td>
+<td>全局变量</td>
+<td><strong>相同点</strong>：<br> - 都可以在声明后修改。<br> <strong>不同点</strong>：<br> - <code>var</code> 在函数作用域内有效，且变量提升，而 C/C++ 的全局变量在整个程序内有效，不存在变量提升。</td>
+</tr>
+<tr class="even">
+<td><code>let</code></td>
+<td>局部变量</td>
+<td><strong>相同点</strong>：<br> - 都具有块作用域。<br> - 声明后可修改。<br> <strong>不同点</strong>：<br> - <code>let</code> 不会变量提升，C/C++ 局部变量必须在使用前声明。</td>
+</tr>
+<tr class="odd">
+<td><code>const</code></td>
+<td>常指针</td>
+<td><strong>相同点</strong>：<br> - 都表示指向不可变值的变量。<br> <strong>不同点</strong>：<br> - <code>const</code> 声明的变量是不可变的常量，而 C/C++ 中 <code>const</code> 常指针指向的值不可变，但指针本身可变。</td>
+</tr>
+</tbody>
+</table>
 </section>
 
 </main>
