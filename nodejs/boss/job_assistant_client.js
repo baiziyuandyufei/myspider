@@ -20,6 +20,6 @@ async function sendMessageToService(message) {
 }
 
 (async () => {
-    const result = await sendMessageToService("你好。介绍一下自己吧！test_job_assistant");
+    const result = await sendMessageToService("你是谁，介绍一下自己。");
     console.log(result);
 })();

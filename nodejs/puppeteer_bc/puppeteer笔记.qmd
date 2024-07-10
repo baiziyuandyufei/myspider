@@ -9,7 +9,9 @@ toc: true
 # 一个简单示例
 
 
-js基础补充
+## js基础补充
+
+
 
 ```{text}
 JavaScript中let、var和const定义变量的主要区别如下:
@@ -56,3 +58,58 @@ Citations:
 | `var`          | 全局变量       | **相同点**：<br> - 都可以在声明后修改。<br> **不同点**：<br> - `var` 在函数作用域内有效，且变量提升，而 C/C++ 的全局变量在整个程序内有效，不存在变量提升。|
 | `let`          | 局部变量       | **相同点**：<br> - 都具有块作用域。<br> - 声明后可修改。<br> **不同点**：<br> - `let` 不会变量提升，C/C++ 局部变量必须在使用前声明。|
 | `const`        | 常指针         | **相同点**：<br> - 都表示指向不可变值的变量。<br> **不同点**：<br> - `const` 声明的变量是不可变的常量，而 C/C++ 中 `const` 常指针指向的值不可变，但指针本身可变。|
+
+## puppeteer中的$eval()与$$eval()
+
+Puppeteer中的$eval()和$$eval()是用于在页面上执行JavaScript代码并与DOM元素交互的方法。这两个方法的主要区别在于它们操作的元素数量和返回值类型。
+
+## $eval()
+
+$eval()方法用于在页面上选择单个元素并对其执行操作。它的用法如下：
+
+* 选择第一个匹配的元素
+* 将该元素作为参数传递给回调函数
+* 执行回调函数并返回结果
+
+语法:
+```javascript
+const result = await page.$eval(selector, pageFunction[, ...args]);
+```
+
+示例:
+```javascript
+const title = await page.$eval('h1', el => el.textContent);
+```
+
+## $$eval()
+
+$$eval()方法用于选择多个元素并对它们执行操作。它的用法如下：
+
+* 选择所有匹配的元素
+* 将匹配元素的数组作为参数传递给回调函数
+* 执行回调函数并返回结果
+
+语法:
+```javascript
+const result = await page.$$eval(selector, pageFunction[, ...args]);
+```
+
+示例:
+```javascript
+const links = await page.$$eval('a', elements => elements.map(el => el.href));
+```
+
+## 主要区别
+
+* $eval()返回单个值，而$$eval()返回一个数组
+* $eval()在找不到元素时会抛出错误，而$$eval()在没有匹配元素时会返回空数组
+* $eval()适用于需要操作单个元素的场景，$$eval()适用于需要批量处理多个元素的场景
+
+这两个方法都是Puppeteer提供的强大工具，可以帮助我们在页面上执行复杂的DOM操作和数据提取任务。
+
+Citations:
+- [1] https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/eval
+- [2] https://wenku.csdn.net/answer/e89918403faa4b33900c55aabde40e2f
+- [3] https://www.runoob.com/python/python-func-eval.html
+- [4] https://www.cnblogs.com/embedded-linux/p/6227795.html
+- [5] https://blog.csdn.net/fuhanghang/article/details/124337731
