@@ -146,12 +146,7 @@ async function getRiskContent(page) {
 // 执行测试函数
 async function runTests() {
     const companies = [
-        '北京乐开科技有限责任公司',
-        '汉克时代',
-        '迈动云智',
-        '法本',
-        '越跃科技',
-        '海天瑞声'
+        '福州惠曦企业管理咨询有限公司',
     ];
 
     for (let company of companies) {

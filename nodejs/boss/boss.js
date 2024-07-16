@@ -1,11 +1,14 @@
 const puppeteer = require('puppeteer');
 const axios = require('axios');
-const { initializeDatabase, createTable, checkCompanyInBlackList} = require('./dbHelper');
+const { initializeDatabase, 
+        createTable, 
+        checkCompanyInBlackList, 
+        checkCompanyInGreetingTable,
+        insertIntoGreetingTable,} = require('./dbHelper');
 const { getLatLngAndDistance} = require('./baiduMap');
 
 
 async function loginAndSendMessage() {
-    const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
     await initializeDatabase();
     await createTable();
     const browser = await puppeteer.launch({
@@ -23,7 +26,7 @@ async function loginAndSendMessage() {
         setInterval(async () => {
             await refreshAndSendMessage(page);
             send_cnt++;
-            if (send_cnt % 72 === 0) {
+            if (send_cnt % 6 === 0) {
                 await greetAndCollectJobDetails(page);
                 send_cnt = 0;
             }
@@ -49,20 +52,19 @@ async function greetAndCollectJobDetails(page) {
         await checkAndClick(page);
         await page.waitForSelector('div.nav > ul > li:nth-child(2)');
         await page.click('div.nav > ul > li:nth-child(2)');
+        delay(3*1000);
         await page.goto('https://www.zhipin.com/web/geek/job-recommend?city=101010100&salary=406&jobType=1901')
-        await delay(3*1000);
         await page.waitForSelector('span.text-content');
         const textContentElements = await page.$$('span.text-content');
         for (const element of textContentElements) {
             await element.click();
-            await delay(200);
             const recommendedJobName = await page.evaluate(el => el.textContent, element);
-            for (let i = 0; i < 10; i++) {
+            for (let i = 0; i < 15; i++) {
                 await page.waitForSelector('ul.rec-job-list > li');
                 const jobListItems = await page.$$('ul.rec-job-list > li');
                 const jobItem = jobListItems[i];
                 await jobItem.click();
-                await delay(200);
+                await delay(1*1000);
                 const bossNameElement = await jobItem.$('span.boss-name');
                 const jobAddressElement = await page.$('p.job-address-desc');
                 const jobNameElement = await page.$('span.job-name');
@@ -78,35 +80,41 @@ async function greetAndCollectJobDetails(page) {
                     clonedEl.find('span.ZNrTrXbrMi').remove();
                     return clonedEl.text();
                 }, jobDescElement) : 'N/A';
+                // console.log(`[${new Date().toLocaleString()}] 读取了 ${bossName} 发布的 ${jobName} 职位信息`);
                 const isCompanyBlacklisted = await checkCompanyInBlackList(bossName);
-                const regexAddress = /^北京.*?(东城|西城|朝阳|丰台)/i;
-                const regexJobName = /自然语言处理|nlp|大语言模型|大模型|爬虫/i;
-                if (!isCompanyBlacklisted && regexAddress.test(jobAddress) && regexJobName.test(jobName)){
-                    // 等待立即沟通按钮出现
+                const regexAddress = /^北京.*?(东城|西城|朝阳|丰台|石景山|门头沟)/i;
+                const regexExcludeLocations = /(望京|西北旺|上地|清河|西二旗|来广营)/i;
+                const regexJobName = /自然语言处理|nlp|大语言模型|大模型|爬虫|人工智能|AI|推荐|llm/i;
+                if (!isCompanyBlacklisted && 
+                    regexAddress.test(jobAddress) && 
+                    !regexExcludeLocations.test(jobAddress) && 
+                    regexJobName.test(jobName) &&
+                    !(await checkCompanyInGreetingTable(jobName))) {
                     await page.waitForSelector('a.op-btn.op-btn-chat');
-                    // 使用 page.$eval 获取按钮文本
                     const buttonText = await page.$eval('a.op-btn.op-btn-chat', element => element.textContent.trim());
-                    // 判断按钮文本是否为“立即沟通”，如果是则进行点击操作
                     if (buttonText === '立即沟通') {
                         await page.click('a.op-btn.op-btn-chat');
-                        await page.waitForSelector('div.chat-block-header > h3');
-                        const headerText = await page.$eval('div.chat-block-header > h3', el => el.textContent);
+                        await delay(1*1000);
+                        const headerTextElement = await page.$('div.chat-block-header > h3');
+                        const headerText = headerTextElement ? await page.evaluate(el => el.textContent, headerTextElement) : 'N/A';
                         if (headerText === "无法进行沟通") {
                             await page.click('a.default-btn.sure-btn');
-                            console.log(`沟通次数达上限，无法申请 ${bossName}`);
-                            console.log('----------------------------------------');
-                            await delay(3*1000);
+                            console.log(`[${new Date().toLocaleString()}] 沟通次数达上限，无法申请 ${bossName}`);
                         } else {
                             await page.waitForSelector('div.greet-boss-footer > a:nth-child(1)');
                             await page.click('div.greet-boss-footer > a:nth-child(1)');
-                            // console.log(`公司名: ${bossName}`);
-                            // console.log(`地址: ${jobAddress}`);
-                            // console.log(`职位名: ${jobName}`);
-                            // console.log(`职位描述: ${jobDesc}`);
-                            // console.log(`推荐职位名: ${recommendedJobName}`);
-                            console.log(`已经申请 ${bossName}`);
-                            console.log('----------------------------------------');
-                            await delay(3*1000);
+                            const risk = 0;
+                            const dist = 0;
+                            const currentDate = new Date().toISOString().split('T')[0];
+                            await insertIntoGreetingTable(bossName, 
+                                jobAddress, 
+                                jobName, 
+                                jobDesc, 
+                                recommendedJobName, 
+                                risk, 
+                                dist, 
+                                currentDate);
+                            console.log(`[${new Date().toLocaleString()}] 申请了 ${bossName} 的 ${jobName} 职位`);
                         }
                     }
                 }
@@ -143,10 +151,11 @@ async function handleHRElement(page, hrElement) {
         const sessionList = await getSessionList(page);
         const lastHRMessage = getLastHRMessage(sessionList);
         const isCompanyBlacklisted = await checkCompanyInBlackList(hrCompany);
+        const isInGreetingTable = await checkCompanyInGreetingTable(hrCompany);
         if (lastHRMessage !== '') {
             console.log(`[${new Date().toLocaleString()}] 收到 ${hrName}-${hrCompany}-${hrPost} 的最后一条消息内容`);
             let messageContent = "";
-            if(!isCompanyBlacklisted){
+            if(!isCompanyBlacklisted && isInGreetingTable){
                 messageContent = await sendMessageToService(lastHRMessage);
             }
             else{
