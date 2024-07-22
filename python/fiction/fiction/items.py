@@ -4,6 +4,7 @@
 # https://docs.scrapy.org/en/latest/topics/items.html
 
 import scrapy
+import scrapy.item
 
 
 class FictionItem(scrapy.Item):
@@ -36,3 +37,7 @@ class SevenkChaptersItem(scrapy.Item):
     book_name = scrapy.Field()
     chapter_url = scrapy.Field()
     chapter_title = scrapy.Field()
+
+class SevenkContentsItem(scrapy.Item):
+    chapter_url = scrapy.Field()
+    chapter_content = scrapy.Field()

@@ -1,6 +1,6 @@
 import sqlite3
 from scrapy.exceptions import DropItem
-from fiction.items import SevenkTagsItem, FictionItem, SevenkBooksItem, SevenkChaptersItem
+from fiction.items import SevenkTagsItem, FictionItem, SevenkBooksItem, SevenkChaptersItem,SevenkContentsItem
 
 class SQLitePipeline:
     def open_spider(self, spider):
@@ -205,6 +205,54 @@ class SevenkChaptersPipeline:
                 book_name,
                 chapter_url,
                 chapter_title
+            ))
+            self.conn.commit()
+        
+        return item
+
+
+import sqlite3
+from scrapy.exceptions import DropItem
+
+class SevenkContentsPipeline:
+
+    def open_spider(self, spider):
+        self.conn = sqlite3.connect('fiction.db')
+        self.cursor = self.conn.cursor()
+        self.cursor.execute('''
+            CREATE TABLE IF NOT EXISTS sevenk_contents (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                chapter_url TEXT UNIQUE,
+                chapter_content TEXT
+            )
+        ''')
+        self.conn.commit()
+
+    def close_spider(self, spider):
+        self.conn.commit()
+        self.conn.close()
+
+    def process_item(self, item, spider):
+        if isinstance(item, SevenkContentsItem):
+            chapter_url = item.get('chapter_url')
+            chapter_content = item.get('chapter_content')
+
+            if not chapter_url or not chapter_content:
+                raise DropItem("Missing one or more required fields (chapter_url, chapter_content) in item")
+
+            # 检查 chapter_url 是否唯一
+            self.cursor.execute('SELECT 1 FROM sevenk_contents WHERE chapter_url = ?', (chapter_url,))
+            if self.cursor.fetchone():
+                return None
+
+            # 插入数据
+            self.cursor.execute('''
+                INSERT INTO sevenk_contents (
+                    chapter_url, chapter_content
+                ) VALUES (?, ?)
+            ''', (
+                chapter_url,
+                chapter_content
             ))
             self.conn.commit()
         

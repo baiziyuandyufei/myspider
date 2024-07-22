@@ -1,4 +1,4 @@
-# Scrapy settings for fiction project
+# Scrapy settings for masterpiece project
 #
 # For simplicity, this file contains only settings considered important or
 # commonly used. You can find more settings consulting the documentation:
@@ -7,16 +7,10 @@
 #     https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 
-import warnings
-from scrapy.exceptions import ScrapyDeprecationWarning
+BOT_NAME = "masterpiece"
 
-# 忽略 ScrapyDeprecationWarning 警告
-warnings.filterwarnings('ignore', category=ScrapyDeprecationWarning)
-
-BOT_NAME = "fiction"
-
-SPIDER_MODULES = ["fiction.spiders"]
-NEWSPIDER_MODULE = "fiction.spiders"
+SPIDER_MODULES = ["masterpiece.spiders"]
+NEWSPIDER_MODULE = "masterpiece.spiders"
 
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
@@ -25,18 +19,16 @@ USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTM
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = False
 
-SPLASH_URL = 'http://localhost:8050'
-
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
-CONCURRENT_REQUESTS = 16
+#CONCURRENT_REQUESTS = 32
 
 # Configure a delay for requests for the same website (default: 0)
 # See https://docs.scrapy.org/en/latest/topics/settings.html#download-delay
 # See also autothrottle settings and docs
-DOWNLOAD_DELAY = 1
+#DOWNLOAD_DELAY = 3
 # The download delay setting will honor only one of:
-CONCURRENT_REQUESTS_PER_DOMAIN = 16
-CONCURRENT_REQUESTS_PER_IP = 16
+#CONCURRENT_REQUESTS_PER_DOMAIN = 16
+#CONCURRENT_REQUESTS_PER_IP = 16
 
 # Disable cookies (enabled by default)
 #COOKIES_ENABLED = False
@@ -53,39 +45,14 @@ CONCURRENT_REQUESTS_PER_IP = 16
 # Enable or disable spider middlewares
 # See https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 #SPIDER_MIDDLEWARES = {
-#    "fiction.middlewares.FictionSpiderMiddleware": 543,
+#    "masterpiece.middlewares.MasterpieceSpiderMiddleware": 543,
 #}
-
-SPIDER_MIDDLEWARES = {
-    'scrapy_splash.SplashDeduplicateArgsMiddleware': 100,
-}
 
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
-DOWNLOADER_MIDDLEWARES = {
-    'scrapy_splash.SplashCookiesMiddleware': 723,
-    'scrapy_splash.SplashMiddleware': 725,
-    'scrapy.downloadermiddlewares.httpcompression.HttpCompressionMiddleware': 810,
-    'scrapy.downloadermiddlewares.retry.RetryMiddleware': 90,
-    'scrapy_proxies.RandomProxy': 100,
-    'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware': 110,
-}
-
-DUPEFILTER_CLASS = 'scrapy_splash.SplashAwareDupeFilter'
-HTTPCACHE_STORAGE = 'scrapy_splash.SplashAwareFSCacheStorage'
-
-# Retry many times since proxies often fail
-RETRY_TIMES = 10
-# Retry on most error codes since proxies fail for different reasons
-RETRY_HTTP_CODES = [500, 503, 504, 400, 403, 404, 408]
-PROXY_LIST = './proxy/list.txt'
-# Proxy mode
-# 0 = Every request has a different proxy
-# 1 = Take only one proxy from the list and assign it to every request
-# 2 = Use a custom proxy specified in the settings
-PROXY_MODE = 0
-# If proxy mode is 2 uncomment this sentence:
-# CUSTOM_PROXY = "http://host1:port"
+#DOWNLOADER_MIDDLEWARES = {
+#    "masterpiece.middlewares.MasterpieceDownloaderMiddleware": 543,
+#}
 
 # Enable or disable extensions
 # See https://docs.scrapy.org/en/latest/topics/extensions.html
@@ -96,11 +63,7 @@ PROXY_MODE = 0
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-   "fiction.pipelines.SQLitePipeline": 200,
-   'fiction.pipelines.SevenkTagsPipeline': 300,
-   'fiction.pipelines.SevenkBooksPipeline': 400,
-   'fiction.pipelines.SevenkChaptersPipeline': 500,
-   'fiction.pipelines.SevenkContentsPipeline': 600,
+   "masterpiece.pipelines.MasterpieceSuiziPipeline": 400,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
